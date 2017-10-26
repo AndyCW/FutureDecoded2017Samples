@@ -5,6 +5,7 @@ using Microsoft.Bot.Connector;
 using System.Net.Http;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConnectedAccountSample.Dialogs
 {
@@ -28,17 +29,8 @@ namespace ConnectedAccountSample.Dialogs
             // Is the user auth'd?
             string authAccessToken = String.Empty;
 
-            if (activity.Entities != null)
-            {
-                foreach (var entity in activity.Entities)
-                {
-                    if (entity.Type == "AuthorizationToken")
-                    {
-                        dynamic authResult = entity.Properties;
-                        authAccessToken = authResult.token;
-                    }
-                }
-            }
+            var tokenEntity = activity.Entities.Where(e => e.Type.Equals("AuthorizationToken")).SingleOrDefault();
+            authAccessToken = tokenEntity?.Properties.Value<string>("token");
 
             if (String.IsNullOrEmpty(authAccessToken))
             {
